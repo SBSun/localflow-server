@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: localflow-server
+  profiles:
+    active: local
+
+springdoc:
+  swagger-ui:
+    path: /docs
+    disable-swagger-default-url: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    doc-expansion: none
+    default-models-expand-depth: 1

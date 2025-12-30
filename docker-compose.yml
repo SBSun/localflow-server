@@ -1,0 +1,20 @@
+services:
+  local-flow-postgres:
+    image: postgres:17
+    container_name: local-flow-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test123!@#
+      POSTGRES_DB: postgres
+      TZ: Asia/Seoul
+    volumes:
+      - ${HOST_BASE_PATH}/postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - local-flow-network
+
+networks:
+  local-flow-network:
+    name: local-flow-network
+    driver: bridge
