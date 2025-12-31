@@ -9,6 +9,7 @@ services:
       TZ: Asia/Seoul
     volumes:
       - ${HOST_BASE_PATH}/postgres_data:/var/lib/postgresql/data
+      - ${HOST_BASE_PATH}/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:

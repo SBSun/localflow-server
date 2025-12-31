@@ -1,9 +1,12 @@
 package com.localflow.workflow.api;
 
 import com.localflow.workflow.api.request.WorkflowCreateRequest;
-import com.localflow.workflow.service.WorkflowService;
+import com.localflow.workflow.api.request.WorkflowSaveRequest;
+import com.localflow.workflow.application.service.WorkflowService;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,5 +25,10 @@ public class WorkflowController {
   @PostMapping
   public UUID create(@RequestBody WorkflowCreateRequest request) {
     return workflowService.create(request);
+  }
+
+  @PutMapping("/{workflowId}")
+  public void save(@PathVariable UUID workflowId, @RequestBody WorkflowSaveRequest request) {
+    workflowService.save(workflowId, request);
   }
 }
