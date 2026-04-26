@@ -1,6 +1,5 @@
 package com.localflow.workflow.domain;
 
-import com.fasterxml.uuid.Generators;
 import com.localflow.common.entities.BaseTimeEntity;
 import com.localflow.workflow.domain.config.CredentialConfig;
 
@@ -29,7 +28,7 @@ import lombok.NoArgsConstructor;
 public class WorkflowNode extends BaseTimeEntity {
 
   @Id
-  private final UUID id = Generators.timeBasedEpochGenerator().generate();
+  private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "workflow_id")
@@ -62,6 +61,7 @@ public class WorkflowNode extends BaseTimeEntity {
 
   @Builder
   public WorkflowNode(
+      UUID id,
       String nodeKey,
       String name,
       String version,
@@ -70,6 +70,7 @@ public class WorkflowNode extends BaseTimeEntity {
       Map<String, Object> parameters,
       List<CredentialConfig> credentials
   ) {
+    this.id = id;
     this.nodeKey = nodeKey;
     this.name = name;
     this.version = version;
@@ -85,12 +86,14 @@ public class WorkflowNode extends BaseTimeEntity {
 
   public void update(String nodeKey, String name, String version,
       Integer positionX, Integer positionY,
-      Map<String, Object> parameters) {
+      Map<String, Object> parameters,
+      List<CredentialConfig> credentials) {
     this.nodeKey = nodeKey;
     this.name = name;
     this.version = version;
     this.positionX = positionX;
     this.positionY = positionY;
     this.parameters = parameters;
+    this.credentials = credentials;
   }
 }

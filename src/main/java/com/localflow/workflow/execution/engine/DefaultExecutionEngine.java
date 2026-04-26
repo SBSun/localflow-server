@@ -37,6 +37,8 @@ public class DefaultExecutionEngine implements ExecutionEngine {
         throw new IllegalArgumentException(result.errorMessage());
       }
 
+      context.putOutput(currentNode.getNodeId(), result.outputData());
+
       // 4️⃣ 다음 실행 가능한 노드 결정
       List<ExecutionNode> nextNodes = currentNode.getNextNodes();
 

@@ -44,7 +44,7 @@ public class NodeExecutionService {
             .workflowNodeId(node.getNodeId())
             .parameters(node.getParameters())
             .credentialProvider(nodeCredentialProvider)
-            .inputs(executionContext.getNodeOutputs())
+            .inputs(executionContext.getSerializableNodeOutputs())
             .triggerPayload(executionContext.getTriggerPayload())
             .build();
 
@@ -55,13 +55,15 @@ public class NodeExecutionService {
     try {
       NodeExecutionResult result = executor.execute(nodeContext);
 
+      if (result == null) {
+        throw new IllegalStateException("NodeExecutor returned null: " + node.getNodeKey());
+      }
+
       executionNode.success(result.outputData());
       return result;
     } catch (Exception e) {
       executionNode.fail(e);
-      //      throw e;
-      return null;
+      return NodeExecutionResult.failure(e);
     }
   }
 }
-

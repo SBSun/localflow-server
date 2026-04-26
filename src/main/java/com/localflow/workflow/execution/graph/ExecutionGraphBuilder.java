@@ -11,10 +11,8 @@ import com.localflow.workflow.repository.WorkflowNodeRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ public class ExecutionGraphBuilder {
   private final WorkflowConnectionRepository connectionRepository;
   private final NodeExecutorRegistry executorRegistry;
 
-  public ExecutionGraph build(UUID workflowId) {
+  public ExecutionGraph build(UUID workflowId, UUID startNodeId) {
     List<WorkflowNode> workflowNodes =
         nodeRepository.findAllByWorkflowId(workflowId);
 
@@ -52,29 +50,27 @@ public class ExecutionGraphBuilder {
       nodeMap.put(execNode.getNodeId(), execNode);
     }
 
-    // 2 & 3. 연결 설정 및 대상 ID 수집을 동시에 처리
-    Set<UUID> targetIds = new HashSet<>();
-
     for (WorkflowConnection connection : nodeConnections) {
       ExecutionNode from = nodeMap.get(connection.getFromNodeId());
       ExecutionNode to = nodeMap.get(connection.getToNodeId());
 
       if (from != null && to != null) {
         from.addNext(to);
-        targetIds.add(to.getNodeId());
       }
     }
 
-    // 3. 시작 노드 필터링
-    List<ExecutionNode> startNodes = nodeMap.values().stream()
-        .filter(n -> !targetIds.contains(n.getNodeId()))
-        .toList();
-    
-    if (startNodes.isEmpty() && !nodeMap.isEmpty()) {
-      throw new IllegalStateException("Circular dependency detected or no entry point found.");
+    ExecutionNode startNode = nodeMap.get(startNodeId);
+    if (startNode == null) {
+      throw new IllegalStateException("Start node not found in workflow: " + startNodeId);
+    }
+    if (!isTriggerNode(startNode)) {
+      throw new IllegalStateException("Workflow execution must start from a trigger node: " + startNodeId);
     }
 
-    return new ExecutionGraph(nodeMap, startNodes);
+    return new ExecutionGraph(nodeMap, List.of(startNode));
+  }
+
+  private boolean isTriggerNode(ExecutionNode node) {
+    return node.getNodeKey().endsWith(".trigger");
   }
 }
-

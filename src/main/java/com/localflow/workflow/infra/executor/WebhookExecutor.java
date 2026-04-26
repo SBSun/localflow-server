@@ -5,12 +5,16 @@ import com.localflow.workflow.execution.node.NodeExecutionResult;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class WebhookExecutor implements NodeExecutor {
 
   @Override
   public NodeExecutionResult execute(NodeExecutionContext context) throws Exception {
-    return null;
+    return NodeExecutionResult.success(Map.of(
+        "payload", context.getTriggerPayload()
+    ));
   }
 
   @Override

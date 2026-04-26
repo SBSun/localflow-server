@@ -32,6 +32,12 @@ public class WorkflowExecutionContext {
     return nodeOutputs.get(nodeId);
   }
 
+  public Map<String, Object> getSerializableNodeOutputs() {
+    Map<String, Object> serializableOutputs = new HashMap<>();
+    nodeOutputs.forEach((nodeId, output) -> serializableOutputs.put(nodeId.toString(), output));
+    return serializableOutputs;
+  }
+
   public void putOutput(UUID nodeId, Object output) {
     nodeOutputs.put(nodeId, output);
   }

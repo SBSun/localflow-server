@@ -6,6 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -47,11 +48,11 @@ public class WorkflowExecutionNode {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "input_data", columnDefinition = "jsonb")
-  private Object inputData;
+  private Map<String, Object> inputData;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "output_data", columnDefinition = "jsonb")
-  private Object outputData;
+  private Map<String, Object> outputData;
 
   @Column(name = "error_message", columnDefinition = "text")
   private String errorMessage;
@@ -69,7 +70,7 @@ public class WorkflowExecutionNode {
     this.finishedAt = LocalDateTime.now();
   }
 
-  public void success(Object outputData) {
+  public void success(Map<String, Object> outputData) {
     this.status = NodeExecutionStatus.SUCCESS;
     this.outputData = outputData;
     this.finishedAt = LocalDateTime.now();

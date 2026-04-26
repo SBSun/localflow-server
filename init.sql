@@ -1,6 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS local_flow;
 
-create table local_flow.workflow
+CREATE TABLE local_flow.workflow
 (
     id          uuid                                not null
         constraint workflow_pk
@@ -12,7 +12,7 @@ create table local_flow.workflow
     updated_at  timestamp default current_timestamp not null
 );
 
-CREATE TABLE workflow_node
+CREATE TABLE local_flow.workflow_node
 (
     id           UUID                                NOT NULL PRIMARY KEY,
     workflow_id  UUID                                NOT NULL,
@@ -29,25 +29,26 @@ CREATE TABLE workflow_node
 
     CONSTRAINT fk_workflow_node_workflow
         FOREIGN KEY (workflow_id)
-            REFERENCES workflow (id)
+            REFERENCES local_flow.workflow (id)
             ON DELETE CASCADE
 );
 CREATE INDEX idx_workflow_node_workflow_id
-    ON workflow_node (workflow_id);
+    ON local_flow.workflow_node (workflow_id);
 
 
-create table local_flow.workflow_execution
+CREATE TABLE local_flow.workflow_execution
 (
     id          bigserial
         constraint workflow_execution_pk
             primary key,
     workflow_id uuid                                not null,
     status      varchar(50)                         not null,
-    created_at  timestamp default CURRENT_TIMESTAMP not null,
+    trigger_context jsonb,
+    started_at  timestamp default CURRENT_TIMESTAMP not null,
     finished_at timestamp
 );
 
-create table local_flow.workflow_execution_node
+CREATE TABLE local_flow.workflow_execution_node
 (
     id                    bigserial
         constraint workflow_execution_node_pk
@@ -62,7 +63,7 @@ create table local_flow.workflow_execution_node
     error_message         text
 );
 
-create table local_flow.workflow_connection
+CREATE TABLE local_flow.workflow_connection
 (
     id           uuid                                not null
         constraint workflow_connection_pk
@@ -70,10 +71,11 @@ create table local_flow.workflow_connection
     workflow_id  uuid                                not null,
     from_node_id uuid                                not null,
     to_node_id   uuid                                not null,
-    created_at   timestamp default CURRENT_TIMESTAMP not null
+    created_at   timestamp default CURRENT_TIMESTAMP not null,
+    updated_at   timestamp default CURRENT_TIMESTAMP not null
 );
 
-create table local_flow.credential
+CREATE TABLE local_flow.credential
 (
     id             uuid                                not null
         constraint credential_pk

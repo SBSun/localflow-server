@@ -7,6 +7,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -39,7 +42,7 @@ public class WorkflowExecution {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "trigger_context", columnDefinition = "jsonb")
-  private TriggerContext triggerContext;
+  private Map<String, Object> triggerContext;
 
   @Column(name = "started_at", nullable = false)
   private LocalDateTime startedAt;
@@ -50,8 +53,12 @@ public class WorkflowExecution {
   public WorkflowExecution(UUID workflowId, TriggerContext triggerContext) {
     this.workflowId = workflowId;
     this.status = WorkflowExecutionStatus.RUNNING;
-    this.triggerContext = triggerContext;
+    this.triggerContext = toMap(triggerContext);
     this.startedAt = LocalDateTime.now();
+  }
+
+  public TriggerContext getTriggerContext() {
+    return fromMap(triggerContext);
   }
 
   public void complete() {
@@ -62,5 +69,31 @@ public class WorkflowExecution {
   public void fail() {
     this.status = WorkflowExecutionStatus.FAILED;
     this.finishedAt = LocalDateTime.now();
+  }
+
+  private Map<String, Object> toMap(TriggerContext context) {
+    Map<String, Object> values = new LinkedHashMap<>();
+    values.put("type", context.type().name());
+    values.put("triggerKey", context.triggerKey());
+    values.put("payload", context.payload() == null ? Collections.emptyMap() : context.payload());
+    return values;
+  }
+
+  @SuppressWarnings("unchecked")
+  private TriggerContext fromMap(Map<String, Object> values) {
+    if (values == null) {
+      return new TriggerContext(null, null, Collections.emptyMap());
+    }
+
+    Object payload = values.get("payload");
+    Map<String, Object> payloadMap = payload instanceof Map<?, ?>
+        ? (Map<String, Object>) payload
+        : Collections.emptyMap();
+
+    return new TriggerContext(
+        com.localflow.workflow.application.trigger.TriggerType.valueOf(String.valueOf(values.get("type"))),
+        String.valueOf(values.get("triggerKey")),
+        payloadMap
+    );
   }
 }

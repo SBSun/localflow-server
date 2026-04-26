@@ -27,7 +27,8 @@ public class WebhookTriggerHandler implements TriggerHandler {
 
     executionService.start(
         webhookNode.getWorkflowId(),
-        context
+        context,
+        webhookNode.getId()
     );
   }
 }

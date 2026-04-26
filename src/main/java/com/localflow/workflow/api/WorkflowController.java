@@ -2,6 +2,7 @@ package com.localflow.workflow.api;
 
 import com.localflow.workflow.api.request.WorkflowCreateRequest;
 import com.localflow.workflow.api.request.WorkflowSaveRequest;
+import com.localflow.workflow.application.execution.WorkflowExecutionService;
 import com.localflow.workflow.application.service.WorkflowService;
 
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class WorkflowController {
 
   private final WorkflowService workflowService;
+  private final WorkflowExecutionService workflowExecutionService;
 
   @PostMapping
   public UUID create(@RequestBody WorkflowCreateRequest request) {
@@ -30,5 +32,10 @@ public class WorkflowController {
   @PutMapping("/{workflowId}")
   public void save(@PathVariable UUID workflowId, @RequestBody WorkflowSaveRequest request) {
     workflowService.save(workflowId, request);
+  }
+
+  @PostMapping("/{workflowId}/execute")
+  public void execute(@PathVariable UUID workflowId) {
+    workflowExecutionService.startManual(workflowId);
   }
 }

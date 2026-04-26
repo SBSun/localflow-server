@@ -18,7 +18,7 @@ public class NodeExecutionContext {
   private final UUID workflowNodeId;
   private final Map<String, Object> parameters;
   private final NodeCredentialProvider credentialProvider;
-  private final Map<UUID, Object> inputs;
+  private final Map<String, Object> inputs;
   private final Map<String, Object> triggerPayload;
   private final LocalDateTime startedAt = LocalDateTime.now();
 }

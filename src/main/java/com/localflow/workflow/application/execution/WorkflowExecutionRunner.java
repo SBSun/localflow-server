@@ -13,8 +13,12 @@ import com.localflow.workflow.repository.WorkflowExecutionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WorkflowExecutionRunner {
@@ -26,11 +30,11 @@ public class WorkflowExecutionRunner {
   private final NodeCredentialProvider baseCredentialProvider;
 
   @Transactional
-  public void run(Long executionId) {
+  public void run(Long executionId, UUID startNodeId) {
     WorkflowExecution execution = executionRepository.findById(executionId)
         .orElseThrow();
 
-    ExecutionGraph graph = graphBuilder.build(execution.getWorkflowId());
+    ExecutionGraph graph = graphBuilder.build(execution.getWorkflowId(), startNodeId);
 
     CredentialProvider credentialProvider =
         new WorkflowScopedCredentialProvider(
@@ -38,14 +42,19 @@ public class WorkflowExecutionRunner {
             baseCredentialProvider
         );
 
-    WorkflowExecutionContext context =
-        new WorkflowExecutionContext(execution, credentialProvider);
+    WorkflowExecutionContext context = new WorkflowExecutionContext(execution, credentialProvider);
     try {
       executionEngine.execute(graph, context);
       execution.complete();
     } catch (Exception e) {
+      log.error(
+          "Workflow execution failed. executionId={}, workflowId={}, startNodeId={}",
+          executionId,
+          execution.getWorkflowId(),
+          startNodeId,
+          e
+      );
       execution.fail();
-      throw e;
     }
   }
 }
